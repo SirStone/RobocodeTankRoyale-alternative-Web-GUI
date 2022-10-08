@@ -22,7 +22,7 @@ The target for this project is to build up an alternative GUI for the game Roboc
 - I want to be able to save results and maybe other stuff in CSV files (on server) and download it from the frontend
 - I want to be able to see the stdout and stderr of server and bots both in the frontend
 
-## THE ACTORS
+## THE MAIN ACTORS
 
 - server side
     - [nodejs](https://nodejs.org/en/), the server runtime
@@ -35,6 +35,7 @@ The target for this project is to build up an alternative GUI for the game Roboc
     - html-css-javascript trio, is there someone that doesn't know about these?
     - [SASS](https://sass-lang.com/), CSS extension framework
     - [jquery](https://jquery.com/), powerfull javascript library
+    - [jquery-ui](https://jqueryui.com/), jquery extension for grphics manipulation
     - [bulma](https://bulma.io/), CSS framework, the eye wants its share
 
 ## AKNOWLEDGE PROBLEMS
@@ -73,24 +74,73 @@ Follow thee steps:
 1. update the .env file with
     
     `SERVERDIR="the folder where you put and renamed file"`
+    
+    Example: _SERVERDIR="/home/pippo/robocode-servers/"_
 1. update the .env file vit the version
 
     `VERSION="the version you downloaded"`
+    
+    Example: _VERISON="0.17.1"_
 
 After the install and configuration run `node app.js` inside the project directory.
 If everything is fine you should see the message 
 ```Booting the robocode tankroyal servers Listening to requests on port 8000```
 Just open a browser at the IP of the server and port 8000 and enjoy. (in case that you are working in localhost like me it's `http://localhost:8000`)
 
-## DEVELOPING BOOT
+## ADDING BOTS
 
-Here same notes for developers, you are not suggested to use these notes blindly, the suggestion is to think wht you need and maybe there already something ready for you to use.
+The bots are booted without the _booter_ utility used by the game, I've made this choice because I want to have access to _stderr_, _stdout_ and _stdin_ of the bot processes.
+
+Also the bots are run launching the shell execuable script of the bot, so as far the bot starts when you run it with the script you wrote, so it will run from this application.
+
+So far only _.sh_ files are used and the script must include all the required stuff for running your bot.
+
+This section explain how to configure the bots directories.
+
+I need to make a distinction, official sample bots and all other custom bots:
+
+### sample bots
+
+The sample bots are the basic bots provided by the authors of the game themselves, I like to have them always available so I've coded to load a specifi directory for these bots. This directory is configurable inside the .env file
+
+`SAMPLEBOTSDIR=<directory of the sample bots>`
+
+In this directory you need to put the root directory for the sample-bots of the version you require.
+
+Example: If the version we are usign is _0.17.1_ and _SAMPLEBOTSDIR="/home/pippo/sample_bots"_ the server will try to read the bots in this directory:
+
+_/home/pippo/sample_bots/sample-bots-java-0.17.1_
+
+You can get the bots folder _sample-bots-java-0.17.1_ or whatever version from the [relases page of Robocode Tank-Royale](https://github.com/robocode-dev/tank-royale/releases).
+
+You can have several versions of the sample-bots as several versions of the game server, the application will try to boot only the version indicated in the .env file
+
+### custom bots
+
+As the sample-bots if you want to have access to your custom bots you need to point in the .env file to a directory containing your bots and the application will make all bots folders (no check if it's a valid bot) available for run, after that if the bot really runs or fails is up to you to find out.
+
+You can have different directories listed, and every directory tagged with a label you prefer in order to recognize the source folder later in the UI.
+
+Here how you do it:
+
+1. find `BOTDIRS` in the .env file
+1. add all the directories in this way, example: _BOTSIRS="tag1,path1;tag2:path2"_
+
+Remember, you need to point the directory containg your bots root directories, same way as the official game requires you to set up the _bot root directories_
+
+Read the [booter](https://robocode-dev.github.io/tank-royale/articles/booter.html) section of the game to learn how to put together a funtcional bot directory
+
+## DEVELOPING NOTES
+
+Here same notes for developers, feel free to use or not.
 
 - in the _package.json_ file there are hooks for improving the development experience:
     - `npm run dev` start a server that reloads when a change is detected in the server code
     - `npm run ui` start a browser page that reloads when changes are detected in the frontend code
     - `npm run css-build`(not to run manually) compiles SCSS into CSS
     - `npm run css-watch` run the `css-build` hook when a change is detected in the SCSS script
+
+You you want contribute, please submit your suggestion/code/complain, I will answer with the timepace I can allow to these matters.
 
 ## ABOUT THE AUTHOR
 ### MY FREE TIME
@@ -103,8 +153,9 @@ It's not that I've nerver used github or git, but never consistently an never ju
 
 ## CREDITS
 
-written and redacted by SirStone, sorry for my mistakes in english language, not my mothertongue.
+written by SirStone, sorry for my mistakes with english
 
 ## COPYRIGHTS
 
-Feel free to clone this repo, modify it, include it in another project. If your desire is to brag aroudn that is your code I will not come after you, this will just make you a bad person. If others would like instead to be good people, just give me a bit of credit mentionioning in some way.
+Feel free to clone this repo, modify it and/or include it in another project.
+If you would like to be among the good people, just make a mentionion about me.
