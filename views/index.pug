@@ -1,0 +1,91 @@
+doctype html 
+html
+    head
+        meta(charset="utf-8")
+        link(rel="shortcut icon", href="/images/tank_icon.ico")
+        meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
+        link(rel="stylesheet" href="/jquery-ui/dist/themes/base/jquery-ui.min.css")
+        link(rel="stylesheet" href="/css/index.css")
+        title #{title}
+    body.is-family-monospace
+        div.box(id='rowbox')
+            span.icon-text.has-text-danger(id='connection-off')
+                span.icon
+                    i.fas.fa-ban
+                span.is-size-7 Communication WebSocket Disconnected
+            span.icon-text.has-text-success.hidden(id='connection-on')
+                span.icon
+                    i.fas.fa-check-square
+                span.is-size-7 Communication WebSocket Connected
+            span.icon
+                i.fas.fa-asterisk
+            span.icon-text.has-text-danger(id='controller-off')
+                span.icon
+                    i.fas.fa-ban
+                span.is-size-7 Controller not connected
+            span.icon-text.has-text-success.hidden(id='controller-on')
+                span.icon
+                    i.fas.fa-check-square
+                span.is-size-7 Controller connected
+            div
+            
+
+            div.buttons.are-small
+                button.button.is-info.is-light(onClick='rebootServer()') REBOOT SERVER
+                button.button.is-info.is-light(onClick='startGame()') START GAME
+                button.button.is-info.is-light(onClick='stopGame()') STOP GAME
+                button.button.is-info.is-light(onClick='rebootBots()') REBOOT BOTS
+                button.button.is-info.is-light(onClick='killAllBots()') KILL ALL BOTS
+            span.is-size-7 Available bots:
+                div.select.is-info.is-small.has-icon-left
+                    select(id='available_bots')
+                        for bot in available_bots
+                            option(tag=`${bot.tag}`, value=`${bot.index}`) #{bot.name}(#{bot.tag})
+                button.button.is-info.is-light.is-small(onClick="runSelectedBot()", id="run_bot_button") RUN
+            div.columns
+                div.column
+                    div.tabs.tags(id='stdout_tabs')
+                        input.tab_input(id='server_tab', type='radio', name='stdout_tab', checked)
+                        label.tab_label.has-text-centered(for='server_tab') Robocode<br>TR Server
+                        div.tab_content
+                            textarea.textarea.is-small.has-fixed-size(rows=21, id='serverContent', name='serverContent', placeholder="Here will be output the server console output", readonly, autocomplete="off", checked)
+                        for running_bot in running_bots
+                            input.tab_input.running_bot(class='item_for_'+running_bot.pid, id=running_bot.pid, type='radio', name='stdout_tab')
+                            label.tab_label.has-text-centered.running_bot(id=running_bot.pid+'_label' class='item_for_'+running_bot.pid, for=running_bot.pid, title='NAME:'+running_bot.name+' PID:'+running_bot.pid) #{running_bot.name}<br><p class="energy">E:?</p>
+                            div.tab_content.running_bot(class='item_for_'+running_bot.pid)
+                                textarea.textarea.is-small.has-fixed-size.bot_textarea(rows=21, id=running_bot.pid+'_content', name=running_bot.pid+'_content', placeholder="Here will be output for #{running_bot.name}(#{running_bot.pid})", readonly, autocomplete="off")
+                div.column
+                    span GAME:
+                    span.is-size-7
+                        span(id="bfWidth") 800
+                        span x
+                        span(id="bfHeight") 600
+                        span &nbsp;
+                        span round:
+                        span(id='numberOfRound') ?
+                        span /
+                        span(id='maxNumberOfRounds') max
+                        span &nbsp;
+                        span turn:
+                        span(id='numberOfTurn') ?
+                    canvas.gamecanvas(id='background')
+                    canvas.gamecanvas(id='battlefield')
+            table.table.box.has-text-small
+                thead
+                    tr
+                        th ID
+                        th name
+                        th energy
+                        th bullet damage
+                        th bullet kill bonus
+                        th last survival bonus
+                        th ram damage
+                        th ram kill bonus
+                        th survival
+                        th total score
+                tbody(id="botUpdates")
+        script(src="/fa/js/all.min.js") 
+        script(src="/jquery-ui/external/jquery/jquery.js")
+        script(src="/jquery-ui/dist/jquery-ui.min.js")
+        script(src="/js/bgDrawing.js")
+        script(src="/js/index.js")

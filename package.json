@@ -1,0 +1,30 @@
+{
+  "name": "sirstone.sirgarage.rtr-webgui",
+  "version": "1.0.0",
+  "description": "An alternative web interface for Robocode Tankroyale",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon ./app.js",
+    "ui": "browser-sync start --config bs-config.js",
+    "css-build": "node-sass --omit-source-map-url sass/index.scss public/css/index.css",
+    "css-watch": "npm run css-build -- --watch"
+  },
+  "author": "signorsasso@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.2.0",
+    "csv-stringify": "^6.2.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-ws": "^5.0.2",
+    "jquery-ui": "^1.13.2",
+    "pug": "^3.0.2"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.27.10",
+    "bulma": "^0.9.4",
+    "node-sass": "^7.0.1",
+    "nodemon": "^2.0.19"
+  }
+}

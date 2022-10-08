@@ -1,0 +1,6 @@
+node_modules
+robocode
+.vscode
+target
+hs_err_pid*
+.DS_Store

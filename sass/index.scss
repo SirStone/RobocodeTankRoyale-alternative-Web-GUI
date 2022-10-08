@@ -1,0 +1,52 @@
+@charset "utf-8";
+@import "../node_modules/bulma/bulma.sass";
+
+.is-small.input,
+.is-small.textarea {
+    font-size: 0.6rem;
+    font-weight: bold;
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.tab_input {
+    display: none;
+}
+
+.tab_input+.tab_label {
+    cursor: pointer;
+    font-size: 0.6em;
+    padding: 1px;
+}
+
+.tab_input:checked+.tab_label {
+    font-weight: bold;
+    color: #9260e8;
+}
+
+.tab_content {
+    order: 1;
+    display: none;
+    width: 100%;
+}
+
+.tab_input:checked+.tab_label+.tab_content {
+    display: block;
+}
+
+.hidden{
+    display:none;
+}
+
+.gamecanvas {
+    border: 1px solid black;
+    position: absolute;
+    display: block;
+}
+
+#stdout_tabs {
+    height: 362.6px;
+}
