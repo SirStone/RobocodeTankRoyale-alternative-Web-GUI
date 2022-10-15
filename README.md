@@ -29,20 +29,19 @@ The target for this project is to build up an alternative GUI for the game Roboc
     - [npm](https://www.npmjs.com/), the packet manager
     - [expressjs](https://expressjs.com/), the server framework
     - JRE, required in order to run the Robocode tank-royale server
-    - [pug](https://pugjs.org/api/getting-started.html), the templating framework, supperted by default by expressjs
+    - [pug](https://pugjs.org/api/getting-started.html), the templating framework, supported by default by expressjs
     - minor parts: read the package.json file for these
 - client side
     - html-css-javascript trio, is there someone that doesn't know about these?
     - [SASS](https://sass-lang.com/), CSS extension framework
     - [jquery](https://jquery.com/), powerfull javascript library
-    - [jquery-ui](https://jqueryui.com/), jquery extension for grphics manipulation
+    - [jquery-ui](https://jqueryui.com/), jquery extension for graphics manipulation
     - [bulma](https://bulma.io/), CSS framework, the eye wants its share
 
-## AKNOWLEDGE PROBLEMS
+## AKNOWLEDGE THE MAIN PROBLEMS
 
-- messy and uncommented code
+- a bit messy code, missing some comments
 - work only in Firefox (last tested version is 105.0.3 64-Bit on MacOS Catalina 10.15.7)
-- the "reboot bots" function is not working properly since I've switched the launching method of the bots
 - the HTML5 canva has different position for the cardinalities, the battle is rendered reversed, but who cares?
 
 ## CURRENT PLAN
