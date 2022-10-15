@@ -47,7 +47,18 @@ The target for this project is to build up an alternative GUI for the game Roboc
 
 ## CURRENT PLAN
 
-The application is doing everything I planned to a certain extent; at this moment I pushed through design problems without caring about doing good code, commenting the code or fixing non-stopping bugs, with the only aim of uderstanding if everything I wanted was possible to achieve and how. Now I reached the point where I know the strong and weak part of my project and modifing something is just painful, hard to understand what is happening or why is not doing what is expecting. So the plan now follows these steps: put this repo on github, write a nice REDME for the people, finish to fix the last bug I've introduced the "reboot bots" function, add comments to the code. Only after I will start again implementing new stuff or fix new bugs.
+The application is doing everything I planned to a certain extent; at this moment I pushed through design problems without caring about doing good code, commenting the code or fixing non-stopping bugs, with the only aim of uderstanding if everything I wanted was possible to achieve and how. The plan is to continuosly refining the code where is found to be refined and keeping the documentation (this README) updated while adding and improving features.
+Here's the planned TODO list, I will try to respect the ordering, from top to bottom, but I want to be free to jump from one to another as much as I want.
+
+- [x] put this repo on github
+- [x] write a nice README
+- [x] fix "reboot bots" function
+- [ ] add comments to all current code (index.js left)
+- [ ] using the new session id, code a new ui for bot status updates
+- [ ] making this WebUI working in chrome/chromium
+- [ ] improve visual representation of the radar
+- [ ] reboot/kill a single bot
+- [ ] test running the server on a different machine. A slower network will make this UI unstable/unusable?
 
 ## INSTALL and RUN
 
