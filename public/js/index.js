@@ -33,7 +33,7 @@ var gameSetup = {
     isMinNumberOfParticipantsLocked:true,
     maxNumberOfParticipants:null,
     isMaxNumberOfParticipantsLocked:true,
-    numberOfRounds:2,
+    numberOfRounds:1,
     isNumberOfRoundsLocked:false,
     gunCoolingRate:0.1,
     isGunCoolingRateLocked:false,
@@ -141,11 +141,10 @@ function connectController() {
                     controller_connection.send(myhandshake)
                     break;
                 case "BotListUpdate":
-                    console.log(data)
+                    // console.log(data)
                     botlist = data.bots
                     if(botlist.length == 0) {
                         $('.running_bot').remove()
-                        resetPID_SID()
 
                         // for testing
                         // addBotToLaunchpad(8)
@@ -166,8 +165,8 @@ function connectController() {
                         if(index) runBots(index)
                         else launchingInAction = false
 
-                        console.table(PIDtoSID)
-                        console.table(SIDtoPID)
+                        // console.table(PIDtoSID)
+                        // console.table(SIDtoPID)
                     }
                     break
                 case "GameStartedEventForObserver":
@@ -282,6 +281,7 @@ function resetPID_SID() {
 
 function rebootBots() {
     stopGame()
+    resetPID_SID()
 
     // kill all bots and get the indexes
     $.get({
