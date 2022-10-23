@@ -29,25 +29,35 @@ The target for this project is to build up an alternative GUI for the game Roboc
     - [npm](https://www.npmjs.com/), the packet manager
     - [expressjs](https://expressjs.com/), the server framework
     - JRE, required in order to run the Robocode tank-royale server
-    - [pug](https://pugjs.org/api/getting-started.html), the templating framework, supperted by default by expressjs
+    - [pug](https://pugjs.org/api/getting-started.html), the templating framework, supported by default by expressjs
     - minor parts: read the package.json file for these
 - client side
     - html-css-javascript trio, is there someone that doesn't know about these?
     - [SASS](https://sass-lang.com/), CSS extension framework
     - [jquery](https://jquery.com/), powerfull javascript library
-    - [jquery-ui](https://jqueryui.com/), jquery extension for grphics manipulation
+    - [jquery-ui](https://jqueryui.com/), jquery extension for graphics manipulation
     - [bulma](https://bulma.io/), CSS framework, the eye wants its share
 
-## AKNOWLEDGE PROBLEMS
+## AKNOWLEDGE THE MAIN PROBLEMS
 
-- messy and uncommented code
+- a bit messy code, missing some comments
 - work only in Firefox (last tested version is 105.0.3 64-Bit on MacOS Catalina 10.15.7)
-- the "reboot bots" function is not working properly since I've switched the launching method of the bots
 - the HTML5 canva has different position for the cardinalities, the battle is rendered reversed, but who cares?
 
 ## CURRENT PLAN
 
-The application is doing everything I planned to a certain extent; at this moment I pushed through design problems without caring about doing good code, commenting the code or fixing non-stopping bugs, with the only aim of uderstanding if everything I wanted was possible to achieve and how. Now I reached the point where I know the strong and weak part of my project and modifing something is just painful, hard to understand what is happening or why is not doing what is expecting. So the plan now follows these steps: put this repo on github, write a nice REDME for the people, finish to fix the last bug I've introduced the "reboot bots" function, add comments to the code. Only after I will start again implementing new stuff or fix new bugs.
+The application is doing everything I planned to a certain extent; at this moment I pushed through design problems without caring about doing good code, commenting the code or fixing non-stopping bugs, with the only aim of uderstanding if everything I wanted was possible to achieve and how. The plan is to continuosly refining the code where is found to be refined and keeping the documentation (this README) updated while adding and improving features.
+Here's the planned TODO list, I will try to respect the ordering, from top to bottom, but I want to be free to jump from one to another as much as I want.
+
+- [x] put this repo on github
+- [x] write a nice README
+- [x] fix "reboot bots" function
+- [ ] add comments to all current code (index.js left)
+- [ ] using the new session id, code a new ui for bot status updates
+- [ ] making this WebUI working in chrome/chromium
+- [ ] improve visual representation of the radar
+- [ ] reboot/kill a single bot
+- [ ] test running the server on a different machine. A slower network will make this UI unstable/unusable?
 
 ## INSTALL and RUN
 
