@@ -1,0 +1,22 @@
+var gameSetup = {
+    "gameType":"classic",
+    "arenaWidth":800,
+    "isArenaWidthLocked":true,
+    "arenaHeight":600,
+    "isArenaHeightLocked":true,
+    "minNumberOfParticipants":2,
+    "isMinNumberOfParticipantsLocked":true,
+    "maxNumberOfParticipants":null,
+    "isMaxNumberOfParticipantsLocked":true,
+    "numberOfRounds":1,
+    "isNumberOfRoundsLocked":false,
+    "gunCoolingRate":0.1,
+    "isGunCoolingRateLocked":false,
+    "maxInactivityTurns":450,
+    "isMaxInactivityTurnsLocked":false,
+    "turnTimeout":30_000,
+    "isTurnTimeoutLocked":false,
+    "readyTimeout":1_000_000,
+    "isReadyTimeoutLocked":false,
+    "defaultTurnsPerSecond":30
+}

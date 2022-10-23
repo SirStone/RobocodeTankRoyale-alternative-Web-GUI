@@ -6,6 +6,9 @@ $( document ).ready(function() {
     // start connecting to the Game Server WebSocket as Controller
     connectController()
 
+    // start connection checks every second
+    setTimeout(checkConnections, 1000)
+
     // init the game canvas with the game setup object
     // TODO: move this in a specific function that can be called in another time
     $('.gamecanvas').attr({
@@ -22,7 +25,7 @@ $( document ).ready(function() {
 })
 
 // websocket connections
-var server_connection
+var server_ws
 
 // objects that are required multiple times
 const server_box = $('#server_box')
@@ -32,31 +35,6 @@ const serverContent = $('#serverContent')
 const botsContent = $('#botsContent')
 var gameAutoStart = false
 var numberOfParticipants = 0
-
-// game setup
-// TODO: move this in an external javascript file on its own
-var gameSetup = {
-    gameType:'classic',
-    arenaWidth:800,
-    isArenaWidthLocked:true,
-    arenaHeight:600,
-    isArenaHeightLocked:true,
-    minNumberOfParticipants:2,
-    isMinNumberOfParticipantsLocked:true,
-    maxNumberOfParticipants:null,
-    isMaxNumberOfParticipantsLocked:true,
-    numberOfRounds:1,
-    isNumberOfRoundsLocked:false,
-    gunCoolingRate:0.1,
-    isGunCoolingRateLocked:false,
-    maxInactivityTurns:450,
-    isMaxInactivityTurnsLocked:false,
-    turnTimeout:30_000, // default 30_000 = 30 milliseconds
-    isTurnTimeoutLocked:false,
-    readyTimeout:1, // 1 second
-    isReadyTimeoutLocked:false,
-    defaultTurnsPerSecond:1
-}
 
 // canvas required items
 var ratio = 0.5 // all the linear sizes are scaled with this ratio
@@ -114,20 +92,18 @@ function handleMessage(data) {
 
 function connectToAPI() {
     console.log("start listening to server")
-    server_connection = new WebSocket('ws://localhost:8000/connect', ['soap', 'xmpp'])
-    server_connection.onopen = function() {
+    server_ws = new WebSocket('ws://localhost:8000/connect', ['soap', 'xmpp'])
+    server_ws.onopen = function() {
         console.log("API WebSocket OPEN: connection is established")
     }
 
-    server_connection.onmessage = function (message) {
-        $('#connection-off').addClass('hidden')
-        $('#connection-on').removeClass('hidden')
+    server_ws.onmessage = function (message) {
         handleMessage(message.data)
     }
-    server_connection.onerror = function(error) {
+    server_ws.onerror = function(error) {
         console.error(`API WebSocket ERROR: ${error.code} ${error.reason}`)    
     }
-    server_connection.onclose = function(msg) {
+    server_ws.onclose = function(msg) {
         $('#connection-on').addClass('hidden')
         $('#connection-off').removeClass('hidden')
         console.warn(`API WebSocket CLOSED: ${msg.code} ${msg.reason}, trying again`)
@@ -135,23 +111,19 @@ function connectToAPI() {
     }
 }
 
-var controller_connection = false
+var controller_ws = false
 var botlist = []
 function connectController() {
     $.get({
         url: '/getServerPort',
         dataType: 'json'
     }).done((data) => {
-        controller_connection = new WebSocket('ws://localhost:'+data.port, ['soap', 'xmpp'])
-        controller_connection.onopen = function() {
+        controller_ws = new WebSocket('ws://localhost:'+data.port, ['soap', 'xmpp'])
+        controller_ws.onopen = function() {
             console.log("CONTROLLER WebSocket OPEN: connection is established")
-            $('#controller-off').addClass('hidden')
-            $('#controller-on').removeClass('hidden')
         }
 
-        controller_connection.onmessage = function (message) {
-            $('#controller-off').addClass('hidden')
-            $('#controller-on').removeClass('hidden')
+        controller_ws.onmessage = function (message) {
             var data = JSON.parse(message.data)
             switch(data.type) {
                 case "ServerHandshake":
@@ -163,7 +135,7 @@ function connectController() {
                         version: "1.0",
                         secret: "controllersecret"
                     })
-                    controller_connection.send(myhandshake)
+                    controller_ws.send(myhandshake)
                     break;
                 case "BotListUpdate":
                     // console.log(data)
@@ -244,12 +216,10 @@ function connectController() {
                     console.log(data)
             }
         }
-        controller_connection.onerror = function(error) {
+        controller_ws.onerror = function(error) {
             console.error(`CONTROLLER WebSocket ERROR: ${error.code} ${error.reason}`,error)    
         }
-        controller_connection.onclose = function(msg) {
-            $('#controller-on').addClass('hidden')
-            $('#controller-off').removeClass('hidden')
+        controller_ws.onclose = function(msg) {
             console.warn(`CONTROLLER WebSocket CLOSED: ${msg.code} ${msg.reason}, trying again`)
             setTimeout(connectController, 1000)
         }
@@ -273,7 +243,7 @@ function rebootServer() {
 }
 
 function startGame() {
-    if(controller_connection) {
+    if(controller_ws) {
         //send game setup
         var botAddresses = []
         botlist.forEach(bot => {
@@ -286,7 +256,7 @@ function startGame() {
             botAddresses: botAddresses
         })
 
-        controller_connection.send(start_game_message)
+        controller_ws.send(start_game_message)
     }
 }
 
@@ -295,7 +265,7 @@ function stopGame() {
         type: 'StopGame'
     })
 
-    controller_connection.send(stop_game_message)
+    controller_ws.send(stop_game_message)
 }
 
 function resetPID_SID() {
@@ -425,5 +395,25 @@ function addRunningBotTab(pid, name) {
     }
     else {
         console.info('tootltips nto created',$('.tab_label').length, numberOfParticipants)
+    }
+}
+
+function checkConnections() {
+    if(server_ws.readyState !== WebSocket.CLOSED) {
+        $('#connection-off').addClass('hidden')
+        $('#connection-on').removeClass('hidden')
+    }
+    else{
+        $('#connection-on').addClass('hidden')
+        $('#connection-off').removeClass('hidden')
+    }
+
+    if(controller_ws.readyState !== WebSocket.CLOSED) {
+        $('#controller-off').addClass('hidden')
+        $('#controller-on').removeClass('hidden')
+    }
+    else {
+        $('#controller-on').addClass('hidden')
+        $('#controller-off').removeClass('hidden')
     }
 }
