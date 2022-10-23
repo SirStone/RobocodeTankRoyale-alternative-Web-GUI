@@ -9,24 +9,14 @@ html
         title #{title}
     body.is-family-monospace
         div.box(id='rowbox')
-            span.icon-text.has-text-danger(id='connection-off')
+            span.icon-text(id='serverWS')
                 span.icon
-                    i.fas.fa-ban
-                span.is-size-7 Communication WebSocket Disconnected
-            span.icon-text.has-text-success.hidden(id='connection-on')
+                    i.fas.fa-heart
+                span.is-size-7 Server
+            span.icon-text(id='controllerWS')
                 span.icon
-                    i.fas.fa-check-square
-                span.is-size-7 Communication WebSocket Connected
-            span.icon
-                i.fas.fa-asterisk
-            span.icon-text.has-text-danger(id='controller-off')
-                span.icon
-                    i.fas.fa-ban
-                span.is-size-7 Controller not connected
-            span.icon-text.has-text-success.hidden(id='controller-on')
-                span.icon
-                    i.fas.fa-check-square
-                span.is-size-7 Controller connected
+                    i.fas.fa-heart
+                span.is-size-7 Controller
             div
             
 
@@ -53,6 +43,7 @@ html
                             input.tab_input.running_bot(class='item_for_'+running_bot.pid, id=running_bot.pid, type='radio', name='stdout_tab')
                             label.tab_label.has-text-centered.running_bot(id=running_bot.pid+'_label' class='item_for_'+running_bot.pid, for=running_bot.pid, title='NAME:'+running_bot.name+' PID:'+running_bot.pid) #{running_bot.name}<br><p class="energy">E:?</p>
                             div.tab_content.running_bot(class='item_for_'+running_bot.pid)
+                                div.box header
                                 textarea.textarea.is-small.has-fixed-size.bot_textarea(rows=21, id=running_bot.pid+'_content', name=running_bot.pid+'_content', placeholder="Here will be output for #{running_bot.name}(#{running_bot.pid})", readonly, autocomplete="off")
                 div.column
                     span GAME:

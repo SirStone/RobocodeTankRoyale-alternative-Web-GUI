@@ -1,31 +1,19 @@
-// the MAIN function, this start as soon as the page is 'ready'
-$( document ).ready(function() {
-    // start connecting to the API WebSocket
-    connectToAPI()
+/* WEBSOCKETS STUFF */
+var server_ws = false // this socket is for all messages sent by processes runned form the server
+var controller_ws = false // this socket is required to control the game server as per Robocode Tank Roayle Docs
 
-    // start connecting to the Game Server WebSocket as Controller
-    connectController()
+// items related to the Web sockets
+var connectionCheck_interval = null
+var connectionCheck_speed = 1000 // in milliseconds, frequency of the websocket status check
 
-    // start connection checks every second
-    setTimeout(checkConnections, 1000)
+// variables to keep track of the last status of the websockets
+// used to avoid to update the UI at every check cycle
+var last_serverWS_state = 0
+var last_controllerWS_state = 0
 
-    // init the game canvas with the game setup object
-    // TODO: move this in a specific function that can be called in another time
-    $('.gamecanvas').attr({
-        width: gameSetup.arenaWidth * ratio,
-        height: gameSetup.arenaHeight * ratio
-    })
-
-    // fill the background of the canvas
-    // TODO: delete this and leave another function to call this one
-    drawBackground(bctx);
-
-    // creates the tooltip bubble for each running bot
-    createToolTips()
-})
-
-// websocket connections
-var server_ws
+// this bot list contains the bots currently connected to the server
+// the array is filled and kept in sync with the bot list provided by the game server itself 
+var connected_bots = []
 
 // objects that are required multiple times
 const server_box = $('#server_box')
@@ -111,8 +99,6 @@ function connectToAPI() {
     }
 }
 
-var controller_ws = false
-var botlist = []
 function connectController() {
     $.get({
         url: '/getServerPort',
@@ -127,7 +113,6 @@ function connectController() {
             var data = JSON.parse(message.data)
             switch(data.type) {
                 case "ServerHandshake":
-                    // console.log(data)
                     var myhandshake = JSON.stringify({
                         sessionId: data.sessionId,
                         type: "ControllerHandshake",
@@ -138,9 +123,8 @@ function connectController() {
                     controller_ws.send(myhandshake)
                     break;
                 case "BotListUpdate":
-                    // console.log(data)
-                    botlist = data.bots
-                    if(botlist.length == 0) {
+                    connected_bots = data.bots
+                    if(connected_bots.length == 0) {
                         $('.running_bot').remove()
 
                         // for testing
@@ -148,7 +132,7 @@ function connectController() {
                         // addBotToLaunchpad(0)
                     }
                     else {
-                        data.bots.forEach(bot => {
+                        connected_bots.forEach(bot => {
                             if(!SIDtoPID.hasOwnProperty(bot.sessionId)) {
                                 const PID = findPID()
                                 if(PID) {
@@ -162,6 +146,7 @@ function connectController() {
                         if(index) runBots(index)
                         else launchingInAction = false
 
+                        //leave here this commented, uncomment if debug these items is required
                         // console.table(PIDtoSID)
                         // console.table(SIDtoPID)
                     }
@@ -246,7 +231,7 @@ function startGame() {
     if(controller_ws) {
         //send game setup
         var botAddresses = []
-        botlist.forEach(bot => {
+        connected_bots.forEach(bot => {
             botAddresses.push({host:bot.host, port:bot.port})
         })
 
@@ -399,21 +384,50 @@ function addRunningBotTab(pid, name) {
 }
 
 function checkConnections() {
-    if(server_ws.readyState !== WebSocket.CLOSED) {
-        $('#connection-off').addClass('hidden')
-        $('#connection-on').removeClass('hidden')
+    if(last_serverWS_state !== server_ws.readyState) { //changed!
+        if(server_ws.readyState == WebSocket.OPEN) {
+            $('#serverWS').addClass('has-text-success')
+        }
+        else{
+            $('#serverWS').removeClass('has-text-success')
+        }
+        last_serverWS_state = server_ws.readyState
     }
-    else{
-        $('#connection-on').addClass('hidden')
-        $('#connection-off').removeClass('hidden')
-    }
-
-    if(controller_ws.readyState !== WebSocket.CLOSED) {
-        $('#controller-off').addClass('hidden')
-        $('#controller-on').removeClass('hidden')
-    }
-    else {
-        $('#controller-on').addClass('hidden')
-        $('#controller-off').removeClass('hidden')
+    
+    
+    if(last_controllerWS_state !== controller_ws.readyState) { //changed!
+        if(controller_ws.readyState == WebSocket.OPEN) {
+            $('#controllerWS').addClass('has-text-success')
+        }
+        else{
+            $('#controllerWS').removeClass('has-text-success')
+        }
+        last_controllerWS_state = controller_ws.readyState
     }
 }
+
+// the MAIN function, this start as soon as the page is 'ready'
+$( document ).ready(function() {
+    // start connecting to the API WebSocket
+    connectToAPI()
+
+    // start connecting to the Game Server WebSocket as Controller
+    connectController()
+
+    // start connection checks every second
+    connectionCheck_interval = setInterval(checkConnections, connectionCheck_speed)
+
+    // init the game canvas with the game setup object
+    // TODO: move this in a specific function that can be called in another time
+    $('.gamecanvas').attr({
+        width: gameSetup.arenaWidth * ratio,
+        height: gameSetup.arenaHeight * ratio
+    })
+
+    // fill the background of the canvas
+    // TODO: delete this and leave another function to call this one
+    drawBackground(bctx);
+
+    // creates the tooltip bubble for each running bot
+    createToolTips()
+})
