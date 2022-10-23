@@ -4,3 +4,4 @@ robocode
 target
 hs_err_pid*
 .DS_Store
+.env
