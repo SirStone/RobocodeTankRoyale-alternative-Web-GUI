@@ -79,11 +79,8 @@ function handleMessage(data) {
 }
 
 function connectToAPI() {
-    console.log("start listening to server")
     server_ws = new WebSocket('ws://localhost:8000/connect', ['soap', 'xmpp'])
-    server_ws.onopen = function() {
-        console.log("API WebSocket OPEN: connection is established")
-    }
+    server_ws.onopen = function() {}
 
     server_ws.onmessage = function (message) {
         handleMessage(message.data)
@@ -92,10 +89,10 @@ function connectToAPI() {
         console.error(`API WebSocket ERROR: ${error.code} ${error.reason}`)    
     }
     server_ws.onclose = function(msg) {
-        $('#connection-on').addClass('hidden')
-        $('#connection-off').removeClass('hidden')
-        console.warn(`API WebSocket CLOSED: ${msg.code} ${msg.reason}, trying again`)
-        connectToAPI()
+        if(msg.code !== 1001) { // server is 'going away'
+            console.warn(`API WebSocket CLOSED: ${msg.code} ${msg.reason}, trying again`)
+            connectToAPI()
+        }
     }
 }
 
@@ -105,9 +102,7 @@ function connectController() {
         dataType: 'json'
     }).done((data) => {
         controller_ws = new WebSocket('ws://localhost:'+data.port, ['soap', 'xmpp'])
-        controller_ws.onopen = function() {
-            console.log("CONTROLLER WebSocket OPEN: connection is established")
-        }
+        controller_ws.onopen = function() {}
 
         controller_ws.onmessage = function (message) {
             var data = JSON.parse(message.data)
@@ -161,7 +156,6 @@ function connectController() {
                     $('#numberOfRound').text(data.roundNumber)
                     break
                 case "TickEventForObserver":
-                    // console.log(data)
                     $('#numberOfTurn').text(data.turnNumber)
                     updateBotUpdates(data)
 
@@ -198,15 +192,17 @@ function connectController() {
                     startGame()
                     break
                 default:
-                    console.log(data)
+                    console.warn("NOT HANDLED MESSAGE",data)
             }
         }
         controller_ws.onerror = function(error) {
             console.error(`CONTROLLER WebSocket ERROR: ${error.code} ${error.reason}`,error)    
         }
         controller_ws.onclose = function(msg) {
-            console.warn(`CONTROLLER WebSocket CLOSED: ${msg.code} ${msg.reason}, trying again`)
-            setTimeout(connectController, 1000)
+            if(msg.code !== 1001) { // server is 'going away'
+                console.warn(`CONTROLLER WebSocket CLOSED: ${msg.code} ${msg.reason}, trying again`)
+                setTimeout(connectController, 1000)
+            }
         }
     })
 }
@@ -427,7 +423,4 @@ $( document ).ready(function() {
     // fill the background of the canvas
     // TODO: delete this and leave another function to call this one
     drawBackground(bctx);
-
-    // creates the tooltip bubble for each running bot
-    createToolTips()
 })
