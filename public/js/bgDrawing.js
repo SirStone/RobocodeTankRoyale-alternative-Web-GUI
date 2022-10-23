@@ -31,7 +31,7 @@ function drawBackground(ctx) {
     ctx.stroke()
 }
 
-function drawRadar(ctx, botstate, ratio, x, y) {
+function drawRadar(ctx, botstate, ratio, x, y, radarRadius) {
     var radar_radius = radarRadius * ratio
 
     var angle1 = botstate.radarDirection-botstate.radarSweep
@@ -74,9 +74,10 @@ function drawHittingCircle(ctx, botstate, ratio, x, y) {
     ctx.arc(x, y, hittingCircle_radius, 0, 2 * Math.PI, false)
     ctx.fillStyle = botstate.bodyColor ? botstate.bodyColor : 'white'
     ctx.fill()
+    return hittingCircle_radius
 }
 
-function drawGun(ctx, botstate, ratio, x, y) {
+function drawGun(ctx, botstate, ratio, x, y, gun_radius) {
     var angle = botstate.gunDirection
     var linetoX = gun_radius * ratio * Math.cos((angle) * oneDegree) + x
     var linetoY = gun_radius * ratio * Math.sin((angle) * oneDegree) + y
@@ -93,11 +94,11 @@ function drawGun(ctx, botstate, ratio, x, y) {
     ctx.stroke()
 }
 
-function drawDirection(ctx, botstate, x, y) {
+function drawDirection(ctx, botstate, x, y, ratio) {
     ctx.moveTo(x, y)
     var angle = botstate.direction
-    var linetoX = 30 * Math.cos((angle) * oneDegree) + x
-    var linetoY = 30 * Math.sin((angle) * oneDegree) + y
+    var linetoX = 50 * ratio * Math.cos((angle) * oneDegree) + x
+    var linetoY = 50 * ratio * Math.sin((angle) * oneDegree) + y
     ctx.setLineDash([])
     ctx.strokeStyle = botstate.bodyColor ? botstate.bodyColor : 'white'
     canvas_arrow(ctx, x, y, linetoX, linetoY)
@@ -108,17 +109,18 @@ function drawBullet(ctx, bulletState, ratio) {
     var x = bulletState.x * ratio
     var y = bulletState.y * ratio
 
-    var radius = 1+bulletState.power
+    var radius = 1+bulletState.power*ratio*2
     ctx.beginPath()
     ctx.arc(x, y, radius, 0, 2 * Math.PI, false)
     ctx.fillStyle = bulletState.color ? bulletState.color : 'white'
     ctx.fill()
 }
 
-function drawId(ctx, botState, x, y) {
+function drawId(ctx, botState, x, y, ratio, hittingCircle_radius) {
     ctx.fillStyle = botState.bodyColor ? 'white' : 'black'
-    ctx.font = "15px Arial";
-    ctx.fillText(botState.id, x-4, y+5)
+    ctx.font = `${hittingCircle_radius}px Arial`
+    var shift = (hittingCircle_radius*0.5)
+    ctx.fillText(botState.id, x-shift, y+shift)
 }
 
 function canvas_arrow(context, fromx, fromy, tox, toy) {

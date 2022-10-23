@@ -1,14 +1,23 @@
+// the MAIN function, this start as soon as the page is 'ready'
 $( document ).ready(function() {
+    // start connecting to the API WebSocket
     connectToAPI()
+
+    // start connecting to the Game Server WebSocket as Controller
     connectController()
 
+    // init the game canvas with the game setup object
+    // TODO: move this in a specific function that can be called in another time
     $('.gamecanvas').attr({
         width: gameSetup.arenaWidth * ratio,
         height: gameSetup.arenaHeight * ratio
     })
 
+    // fill the background of the canvas
+    // TODO: delete this and leave another function to call this one
     drawBackground(bctx);
 
+    // creates the tooltip bubble for each running bot
     createToolTips()
 })
 
@@ -23,6 +32,9 @@ const serverContent = $('#serverContent')
 const botsContent = $('#botsContent')
 var gameAutoStart = false
 var numberOfParticipants = 0
+
+// game setup
+// TODO: move this in an external javascript file on its own
 var gameSetup = {
     gameType:'classic',
     arenaWidth:800,
@@ -39,52 +51,65 @@ var gameSetup = {
     isGunCoolingRateLocked:false,
     maxInactivityTurns:450,
     isMaxInactivityTurnsLocked:false,
-    turnTimeout:5_000, // default 30_000 = 30 milliseconds
+    turnTimeout:30_000, // default 30_000 = 30 milliseconds
     isTurnTimeoutLocked:false,
-    readyTimeout:1_000_000, // 1 second
+    readyTimeout:1, // 1 second
     isReadyTimeoutLocked:false,
-    defaultTurnsPerSecond:5000
+    defaultTurnsPerSecond:1
 }
-var ratio = 0.5
-const bctx = $('#background')[0].getContext('2d')
-const ctx = $('#battlefield')[0].getContext('2d')
-const backgroundColor = '#63718e'
-const radarRadius = 1200
-const oneDegree = Math.PI / 180.0
-const gun_radius = 36
-var launchingPad = []
-var PIDtoSID = {}
-var SIDtoPID = {}
 
+// canvas required items
+var ratio = 0.5 // all the linear sizes are scaled with this ratio
+const bctx = $('#background')[0].getContext('2d') //background canvas object
+const ctx = $('#battlefield')[0].getContext('2d') //foreground ak battlefield canvas object
+const backgroundColor = '#63718e' // background color
+
+// physics rules
+const radarRadius = 1200 // radar max distance
+const oneDegree = Math.PI / 180.0 // one degree in radians
+const gun_radius = 36 // dimension of gun cannon. TODO: fix why I can't see the gun anymor ein the canvas
+
+// running bots launchpad items
+var launchingPad = [] // this contains the bots that needs to be runned, it's a FIFO buffer
+var PIDtoSID = {} // table containing the PID and SID data, where the PID is the key
+var SIDtoPID = {} // table containing the PID and SID data, where the SID is the key
+
+// function that receives all the messages from the server WebSocket and handles them with a switch
 function handleMessage(data) {
-    var parsed_data = JSON.parse(data)
-    var message = parsed_data.message.trim()
+    var parsed_data = JSON.parse(data) // data received is raw, must be parsed
+    var message = parsed_data.message.trim() // removing extra withe spaces from the message
     
-    if(message.length != 0)
-        switch(parsed_data.process) {
-            case 'server':
-                serverContent.append(`${message}\n`)
-                var textarea = document.getElementById('serverContent');
-                textarea.scrollTop = textarea.scrollHeight;
-                break
-            case 'bot':
-                if(parsed_data.channel == 'close') {
-                    if(!$(`#${parsed_data.pid}`).length) {
-                        $(`.item_for_${parsed_data.pid}`).remove()
-                    }
+    // GATE: stop if the message is empty
+    if(message.length == 0) return
+
+    switch(parsed_data.process) {
+        case 'server': // message belongs to the game server process
+            // put the message in the UI    
+            serverContent.append(`${message}\n`)
+
+            // scroll the textarea to the last content
+            var textarea = document.getElementById('serverContent')
+            textarea.scrollTop = textarea.scrollHeight
+            break
+        case 'bot': // message belongs to a bot process
+            if(parsed_data.channel == 'close') { // the process closed
+                // search for all UI items beloging to this bot and delete them
+                if(!$(`#${parsed_data.pid}`).length) {
+                    $(`.item_for_${parsed_data.pid}`).remove()
                 }
-                else {
-                    if(!$(`#${parsed_data.pid}`).length) {
-                        addRunningBotTab(parsed_data.pid, parsed_data.name)
-                    }
-                    
-                    var id = `${parsed_data.pid}_content`
-                    $(`#${id}`).append(`${message}\n`)
-                    var textarea = document.getElementById(id)
-                    textarea.scrollTop = textarea.scrollHeight
-                }        
-                break
-        }
+            }
+            else {
+                if(!$(`#${parsed_data.pid}`).length) {
+                    addRunningBotTab(parsed_data.pid, parsed_data.name)
+                }
+                
+                var id = `${parsed_data.pid}_content`
+                $(`#${id}`).append(`${message}\n`)
+                var textarea = document.getElementById(id)
+                textarea.scrollTop = textarea.scrollHeight
+            }        
+            break
+    }
 }
 
 function connectToAPI() {
@@ -170,14 +195,12 @@ function connectController() {
                     }
                     break
                 case "GameStartedEventForObserver":
-                    console.log(data)
                     $('#numberOfRound').text(0)
                     $('#maxNumberOfRounds').text(data.gameSetup.numberOfRounds)
                     $('.bot_textarea').append('---GAME STARTED-----------------\n')
                     createBotUpdates(data)
                     break
                 case "RoundStartedEvent":
-                    console.log(data)
                     $('#numberOfRound').text(data.roundNumber)
                     break
                 case "TickEventForObserver":
@@ -191,27 +214,28 @@ function connectController() {
                         var bot_centerX = botstate.x * ratio
                         var bot_centerY = botstate.y * ratio
 
+                        ctx.lineWidth = 2 * ratio
+
                         // radar
-                        drawRadar(ctx, botstate, ratio, bot_centerX, bot_centerY)
+                        drawRadar(ctx, botstate, ratio, bot_centerX, bot_centerY, radarRadius)
 
                         // gun
-                        drawGun(ctx, botstate, ratio, bot_centerX, bot_centerY)
+                        drawGun(ctx, botstate, ratio, bot_centerX, bot_centerY, gun_radius)
 
                         // direction
-                        drawDirection(ctx, botstate, bot_centerX, bot_centerY)
+                        drawDirection(ctx, botstate, bot_centerX, bot_centerY, ratio)
 
                         // hitting circle
-                        drawHittingCircle(ctx, botstate, ratio, bot_centerX, bot_centerY)
+                        let hittingCircle_radius = drawHittingCircle(ctx, botstate, ratio, bot_centerX, bot_centerY)
 
                         // ID
-                        drawId(ctx, botstate, bot_centerX, bot_centerY)
+                        // drawId(ctx, botstate, bot_centerX, bot_centerY, ratio, hittingCircle_radius)
                     })
                     data.bulletStates.forEach(bulletState => {
                         drawBullet(ctx, bulletState, ratio)
                     })
                     break
                 case 'GameEndedEventForObserver':
-                    console.log(data)
                     updateScores(data)
                     saveBotResults(data)
                     startGame()
@@ -340,7 +364,7 @@ function createBotUpdates(gameStartData) {
 function updateBotUpdates(tickData) {
     tickData.botStates.forEach(botState => {
         const PID = SIDtoPID[botState.sessionId]
-        $('.energy',$(`#${PID}_label`)).text(`E:${botState.energy}`)
+        $('.energy',$(`#${PID}_label`)).text(`E:${Math.round(botState.energy, 2)}`)
         $('.botUpdate_energy',`#botUpdate_${botState.id}`).text(Math.round(botState.energy, 2))
     })
 }
