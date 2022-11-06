@@ -88,6 +88,10 @@ const csvWriter = createCsvWriter({
 // the main application!
 const app = express()
 
+// for reading the POST parameters
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
 // required for WebSockets
 require('express-ws')(app)
 
@@ -135,8 +139,8 @@ app.get("/", (req, res) => {
   res.render("index", { title: "Robocode Tank Royale Web GUI", available_bots: available_bots, running_bots: running_bots })
 })
 
-// '/connect' --> establish a websocket connection, uses express-ws
-app.ws("/connect", (ws, req) => {
+// '/api' --> establish a websocket connection, uses express-ws
+app.ws("/api", (ws, req) => {
     communication_ws = ws
 })
 
@@ -186,6 +190,7 @@ app.get('/killAllBots', (req, res) => {
 // '/runBot' --> run a bot using the array index
 app.get('/runBot', (req, res) => {
   var running_bot = runBot(req.query.index)
+  // console.log(running_bots)
   res.set('Content-Type', 'text/plain')
   res.end(JSON.stringify(running_bot))
 })
@@ -213,6 +218,12 @@ app.get('/saveBotResults', (req, res) => {
   csvWriter
   .writeRecords(req.query.results)
   .then(()=> res.sendStatus(200)) // we send beck the response only when record is written
+})
+
+app.post('/addSID', (req, res) => {
+  running_bots.forEach(running_bot => {
+    if(running_bot.pid == req.body.PID) running_bot.sid = req.body.SID
+  })
 })
 /////////////////////END API routes//////////////////
 

@@ -21,6 +21,7 @@ const booter_box = $('#booter_box')
 const robot_tabs = $('#robot_tabs')
 const serverContent = $('#serverContent')
 const botsContent = $('#botsContent')
+const runBotUIButton = $('#run_bot_button')
 var gameAutoStart = false
 var numberOfParticipants = 0
 
@@ -79,7 +80,7 @@ function handleMessage(data) {
 }
 
 function connectToAPI() {
-    server_ws = new WebSocket('ws://localhost:8000/connect', ['soap', 'xmpp'])
+    server_ws = new WebSocket('ws://localhost:8000/api', ['soap', 'xmpp'])
     server_ws.onopen = function() {}
 
     server_ws.onmessage = function (message) {
@@ -101,7 +102,7 @@ function connectController() {
         url: '/getServerPort',
         dataType: 'json'
     }).done((data) => {
-        controller_ws = new WebSocket('ws://localhost:'+data.port, ['soap', 'xmpp'])
+        controller_ws = new WebSocket(`ws://localhost:${data.port}/controller`, ['soap', 'xmpp'])
         controller_ws.onopen = function() {}
 
         controller_ws.onmessage = function (message) {
@@ -133,13 +134,21 @@ function connectController() {
                                 if(PID) {
                                     PIDtoSID[PID]= bot.sessionId
                                     SIDtoPID[bot.sessionId] = PID
+                                    
+                                    // send back the Session Id to the server, it needs to know it for later purposes
+                                    sendSID(PID, bot.sessionId)
                                 }
                             }
                         })
                         
                         const index = launchingPad.shift()
-                        if(index) runBots(index)
-                        else launchingInAction = false
+                        if(index) {
+                            runBots(index)
+                        }
+                        else {
+                            launchingInAction = false
+                            runBotButton(true)
+                        }
 
                         //leave here this commented, uncomment if debug these items is required
                         // console.table(PIDtoSID)
@@ -214,6 +223,16 @@ function findPID() {
     return false
 }
 
+function sendSID(PID, SID) {
+    $.post({
+        url: '/addSID',
+        dataType: 'json',
+        data: {'PID':PID, 'SID': SID}
+    }).done(() => {
+
+    })
+}
+
 function rebootServer() {
     $.ajax({
         url: '/rebootServer',
@@ -264,22 +283,30 @@ function rebootBots() {
         dataType: 'json'
     }).done((data) => {
         launchingPad = data.indexes
-        runBots(launchingPad.shift())
+
+        while (launchPad_busy) {
+            sleep(10)
+        } 
+
+        runBots(getNext())
     })
 }
 
 function runSelectedBot() {
-    addBotToLaunchpad($('#available_bots').val())
+    // addBotToLaunchpad($('#available_bots').val())
+    if(!launchingInAction) runBots($('#available_bots').val())
 }
 
 var launchingInAction = false
 function addBotToLaunchpad(index) {
     launchingPad.push(index)
+
     if(!launchingInAction) runBots(launchingPad.shift())
 }
 
 function runBots(index) {
     launchingInAction = true
+    runBotButton(false)
     $.get({
         url: '/runBot',
         dataType: 'json',
@@ -289,7 +316,6 @@ function runBots(index) {
     }).done(new_bot => {
         numberOfParticipants++
         PIDtoSID[`${new_bot.pid}`] = false
-        console.table(PIDtoSID)
     })
 }
 
@@ -301,6 +327,7 @@ function killAllBots() {
     }).done(() => {
         $('.running_bot').remove()
         $('.botUpdate').remove()
+        resetPID_SID()
     })
 }
 
@@ -400,6 +427,15 @@ function checkConnections() {
         }
         last_controllerWS_state = controller_ws.readyState
     }
+}
+
+function runBotButton(status) {
+    if(status) runBotUIButton.addClass('is-info')
+    else runBotUIButton.removeClass('is-info')
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // the MAIN function, this start as soon as the page is 'ready'

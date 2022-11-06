@@ -12,7 +12,7 @@ html
             span.icon-text(id='serverWS')
                 span.icon
                     i.fas.fa-heart
-                span.is-size-7 Server
+                span.is-size-7 Server&nbsp;&nbsp;
             span.icon-text(id='controllerWS')
                 span.icon
                     i.fas.fa-heart
@@ -39,12 +39,12 @@ html
                         label.tab_label.has-text-centered(for='server_tab') Robocode<br>TR Server
                         div.tab_content
                             textarea.textarea.is-small.has-fixed-size(rows=21, id='serverContent', name='serverContent', placeholder="Here will be output the server console output", readonly, autocomplete="off", checked)
-                        for running_bot in running_bots
-                            input.tab_input.running_bot(class='item_for_'+running_bot.pid, id=running_bot.pid, type='radio', name='stdout_tab')
-                            label.tab_label.has-text-centered.running_bot(id=running_bot.pid+'_label' class='item_for_'+running_bot.pid, for=running_bot.pid, title='NAME:'+running_bot.name+' PID:'+running_bot.pid) #{running_bot.name}<br><p class="energy">E:?</p>
-                            div.tab_content.running_bot(class='item_for_'+running_bot.pid)
-                                div.box header
-                                textarea.textarea.is-small.has-fixed-size.bot_textarea(rows=21, id=running_bot.pid+'_content', name=running_bot.pid+'_content', placeholder="Here will be output for #{running_bot.name}(#{running_bot.pid})", readonly, autocomplete="off")
+                        //- for running_bot in running_bots
+                        //-     input.tab_input.running_bot(class='item_for_'+running_bot.pid, id=running_bot.pid, type='radio', name='stdout_tab')
+                        //-     label.tab_label.has-text-centered.running_bot(id=running_bot.pid+'_label' class='item_for_'+running_bot.pid, for=running_bot.pid, title='NAME:'+running_bot.name+' PID:'+running_bot.pid) #{running_bot.name}<br><p class="energy">E:?</p>
+                        //-     div.tab_content.running_bot(class='item_for_'+running_bot.pid)
+                        //-         div.box header
+                        //-         textarea.textarea.is-small.has-fixed-size.bot_textarea(rows=21, id=running_bot.pid+'_content', name=running_bot.pid+'_content', placeholder="Here will be output for #{running_bot.name}(#{running_bot.pid})", readonly, autocomplete="off")
                 div.column
                     span GAME:
                     span.is-size-7
@@ -79,5 +79,5 @@ html
         script(src="/jquery-ui/external/jquery/jquery.js")
         script(src="/jquery-ui/dist/jquery-ui.min.js")
         script(src="/js/gameSetup.js")
-        script(src="/js/bgDrawing.js")
+        script(src="/js/canvasDrawing.js")
         script(src="/js/index.js")
