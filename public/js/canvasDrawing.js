@@ -32,10 +32,12 @@ function drawBackground(ctx) {
 }
 
 function drawRadar(ctx, botstate, ratio, x, y, radarRadius) {
+    y = ctx.canvas.height - y
+
     var radar_radius = radarRadius * ratio
 
-    var angle1 = botstate.radarDirection-botstate.radarSweep
-    var angle2 = botstate.radarDirection
+    var angle1 = -botstate.radarDirection-botstate.radarSweep
+    var angle2 = -botstate.radarDirection
 
     if(angle1 > angle2) {
         var from_angle = angle1
@@ -69,6 +71,7 @@ function drawRadar(ctx, botstate, ratio, x, y, radarRadius) {
 }
 
 function drawHittingCircle(ctx, botstate, ratio, x, y) {
+    y = ctx.canvas.height - y
     var hittingCircle_radius = 18 * ratio
     ctx.beginPath()
     ctx.arc(x, y, hittingCircle_radius, 0, 2 * Math.PI, false)
@@ -78,7 +81,8 @@ function drawHittingCircle(ctx, botstate, ratio, x, y) {
 }
 
 function drawGun(ctx, botstate, ratio, x, y, gun_radius) {
-    var angle = botstate.gunDirection
+    y = ctx.canvas.height - y
+    var angle = -botstate.gunDirection
     var linetoX = gun_radius * ratio * Math.cos((angle) * oneDegree) + x
     var linetoY = gun_radius * ratio * Math.sin((angle) * oneDegree) + y
 
@@ -95,8 +99,9 @@ function drawGun(ctx, botstate, ratio, x, y, gun_radius) {
 }
 
 function drawDirection(ctx, botstate, x, y, ratio) {
+    y = ctx.canvas.height - y
     ctx.moveTo(x, y)
-    var angle = botstate.direction
+    var angle = -botstate.direction
     var linetoX = 50 * ratio * Math.cos((angle) * oneDegree) + x
     var linetoY = 50 * ratio * Math.sin((angle) * oneDegree) + y
     ctx.setLineDash([])
@@ -107,7 +112,7 @@ function drawDirection(ctx, botstate, x, y, ratio) {
 
 function drawBullet(ctx, bulletState, ratio) {
     var x = bulletState.x * ratio
-    var y = bulletState.y * ratio
+    var y = ctx.canvas.height - bulletState.y * ratio
 
     var radius = 1+bulletState.power*ratio*2
     ctx.beginPath()
