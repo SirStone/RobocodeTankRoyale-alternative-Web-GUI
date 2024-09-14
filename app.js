@@ -41,6 +41,7 @@ const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 
 ////////////////////START reading of .env file//////////////////////
 // read the .env file
+const app_port = process.env.APP_PORT;
 var server_port = process.env.SERVER_PORT;
 const server_ip = process.env.SERVER_IP;
 const botsecret = process.env.SERVER_SECRET_FOR_ROBOT;
@@ -156,6 +157,7 @@ app.get("/", (req, res) => {
     title: "Robocode Tank Royale Web GUI",
     available_bots: available_bots,
     running_bots: running_bots,
+    app_port: app_port,
   });
 });
 
@@ -311,6 +313,7 @@ function runServer() {
       `--port=${server_port}`,
       `--bot-secrets=${botsecret}`,
       "--controller-secrets=controllersecret",
+      "--enable-initial-position"
     ],
     { shell: true },
   );
@@ -318,13 +321,15 @@ function runServer() {
   // listening to STDOUT messages
   serverProcess.stdout.on("data", (data) => {
     // send the STDOUT message to the frontend
-    sendMessage(
-      "server",
-      serverProcess.pid,
-      "stdout",
-      `${data}`,
-      "Robocode Tankroyale Server",
-    );
+    // sendMessage(
+    //   "server",
+    //   serverProcess.pid,
+    //   "stdout",
+    //   `${data}`,
+    //   "Robocode Tankroyale Server",
+    // );
+
+    console.log(`Server STDOUT: ${data}`);
   });
 
   // listening to STDERR messages

@@ -80,7 +80,10 @@ function handleMessage(data) {
 }
 
 function connectToAPI() {
-  server_ws = new WebSocket("ws://localhost:8000/api", ["soap", "xmpp"]);
+  // get the port of the API server from the hidden div with id 'app_port'
+  var app_port = $("#app_port").text();
+
+  server_ws = new WebSocket(`ws://localhost:${app_port}/api`, ["soap", "xmpp"]);
   server_ws.onopen = function () {};
 
   server_ws.onmessage = function (message) {
